@@ -1,5 +1,6 @@
 (ns tic-tac-toe.core)
 
+(def players #{"x" "o"})
 (def open "e")
 (def incomplete "incomplete")
 (def draw "draw")
@@ -27,23 +28,20 @@
   [board player combo]
   (every? #(= player %) (select-values board combo)))
 
-(defn- winners-result
-  [board player]
-  (set (flatten (for [combo winners
-                      :when (hit-winner-combo? board player combo)]
-                  combo))))
-
-(defn- final-result
-  [board player]
-  [player (winners-result board player)])
+(defn- winner-result
+  [board]
+  (flatten (for [combo winners
+                 player players
+                 :when (hit-winner-combo? board player combo)]
+             [player (set combo)])))
 
 (defn- won-game?
-  [board player]
-  (not-empty (winners-result board player)))
+  [board]
+  (not-empty (winner-result board)))
 
 (defn score-game
-  [board, player]
+  [board]
   (cond
-    (won-game? board player) (final-result board player)
+    (won-game? board) (winner-result board)
     (contains-open? board) [incomplete (keys-for-open board)]
     :else [draw #{}]))
