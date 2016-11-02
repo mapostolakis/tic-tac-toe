@@ -1,6 +1,6 @@
 (ns tic-tac-toe.core)
 
-(def empty "e")
+(def open "e")
 (def incomplete "incomplete")
 (def draw "draw")
 (def winners [[0 1 2] [3 4 5] [6 7 8]
@@ -13,16 +13,15 @@
        (apply select-keys)
        (vals)))
 
-(defn- keys-for-empty
+(defn- keys-for-open
   [board]
-  (->> board
-       (keys)
-       (filter (comp #{empty} board))
-       (set)))
+  (set (for [key (keys board)
+             :when (= (board key) open)]
+         key)))
 
-(defn- contains-empty?
+(defn- contains-open?
   [board]
-  (contains? (set (vals board)) empty))
+  (contains? (set (vals board)) open))
 
 (defn- hit-winner-combo?
   [board player combo]
@@ -46,5 +45,5 @@
   [board, player]
   (cond
     (won-game? board player) (final-result board player)
-    (contains-empty? board) [incomplete (keys-for-empty board)]
+    (contains-open? board) [incomplete (keys-for-open board)]
     :else [draw #{}]))
